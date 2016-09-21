@@ -33,9 +33,9 @@ func (h *Harness) RunAll() {
 
 	/// URLS
 	fmt.Println("URLS:\n")
-	timeout := time.Duration(30) * time.Second
+	timeout := time.Duration(60) * time.Second
 	client := thingfulx.NewClient("thingful", timeout)
-	delay := time.Duration(30) * time.Second
+	delay := time.Duration(10) * time.Second
 
 	URLs, err := h.fetcher.URLS(client, delay)
 	if err != nil {
@@ -73,7 +73,7 @@ func (h *Harness) RunAll() {
 func (h *Harness) RunFetch(urls []string) {
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("FETCH:\n")
-	timeout := time.Duration(30) * time.Second
+	timeout := time.Duration(60) * time.Second
 	ctx := context.Background()
 	clientFetch := thingfulx.NewClient("thingful", timeout)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
