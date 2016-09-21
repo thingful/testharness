@@ -5,18 +5,9 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/thingful/thingfulx"
 	"golang.org/x/net/context"
+	"math"
 	"time"
 )
-
-var Number = "0"
-
-// var Fetcher thingfulx.Fetcher
-
-func Init(s string) {
-
-	var Number = s
-	fmt.Printf("input = %s\n", Number)
-}
 
 func Register(builder thingfulx.FetcherBuilder) (*Harness, error) {
 	fetcher, err := builder()
@@ -33,14 +24,15 @@ type Harness struct {
 	fetcher thingfulx.Fetcher
 }
 
-func (h *Harness) Run() {
+func (h *Harness) RunAll() {
 
-	fmt.Println("Running fetcher:", h.fetcher.Provider().UID)
+	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("Provider:\n")
 	spew.Dump(h.fetcher.Provider())
+	fmt.Println("\n\n")
 
 	/// URLS
-	fmt.Println("getting URLs:\n")
+	fmt.Println("URLS:\n")
 	timeout := time.Duration(30) * time.Second
 	client := thingfulx.NewClient("thingful", timeout)
 	delay := time.Duration(30) * time.Second
@@ -50,24 +42,49 @@ func (h *Harness) Run() {
 		panic(err)
 	}
 
-	fmt.Printf("Got %v URLS\n", len(URLs))
+	showSize := int(math.Min(3, float64(len(URLs))))
+	fmt.Printf("URLs has %d entry but only showing first %d:\n", len(URLs), showSize)
 
-	for _, u := range URLs {
+	showURLs := URLs[0:showSize]
+
+	for _, u := range showURLs {
 		fmt.Println(u)
 	}
+	fmt.Println("\n\n")
 
-	/// FETCH
+	//FETCH
+	fmt.Println("FETCH:\n")
 	ctx := context.Background()
-	clientFetch := thingfulx.NewClient("thingful", time.Duration(1)*time.Second)
+	clientFetch := thingfulx.NewClient("thingful", timeout)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
 
-	for _, u := range URLs {
-		fmt.Printf("fetching %s\n", u)
+	for _, u := range showURLs {
+		fmt.Printf("fetching:  %s\n", u)
 		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
-		if err == nil {
-
+		if err != nil {
+			panic(err)
 		}
 		spew.Dump(things)
+		fmt.Println("\n")
 	}
 
+}
+
+func (h *Harness) RunFetch(urls []string) {
+	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
+	fmt.Println("FETCH:\n")
+	timeout := time.Duration(30) * time.Second
+	ctx := context.Background()
+	clientFetch := thingfulx.NewClient("thingful", timeout)
+	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
+
+	for _, u := range urls {
+		fmt.Printf("fetching:  %s\n", u)
+		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
+		if err != nil {
+			panic(err)
+		}
+		spew.Dump(things)
+		fmt.Println("\n")
+	}
 }
