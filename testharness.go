@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/thingful/thingfulx"
+	"golang.org/x/net/context"
 	"time"
 )
 
@@ -38,8 +39,8 @@ func (h *Harness) Run() {
 	fmt.Println("Provider:\n")
 	spew.Dump(h.fetcher.Provider())
 
+	/// URLS
 	fmt.Println("getting URLs:\n")
-
 	timeout := time.Duration(30) * time.Second
 	client := thingfulx.NewClient("thingful", timeout)
 	delay := time.Duration(30) * time.Second
@@ -53,6 +54,20 @@ func (h *Harness) Run() {
 
 	for _, u := range URLs {
 		fmt.Println(u)
+	}
+
+	/// FETCH
+	ctx := context.Background()
+	client := thingfulx.NewClient("thingful", time.Duration(1)*time.Second)
+	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
+
+	for _, u := range URLs {
+		fmt.Printf("fetching %s\n", u)
+		things, err := h.fetcher.Fetch(ctx, u, client, timeProvider)
+		if err == nil {
+
+		}
+		spew.Dump(things)
 	}
 
 }

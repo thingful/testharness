@@ -4,6 +4,7 @@ import:
 - package: github.com/thingful/thingfulx
   version: fetcherbuilder
 - package: github.com/stretchr/testify
+- package: golang.org/x/net/context
 - package: github.com/davecgh/go-spew
   subpackages:
   - spew
