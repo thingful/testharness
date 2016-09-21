@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/thingful/thingfulx"
+	"time"
 )
 
 var Number = "0"
@@ -32,6 +33,26 @@ type Harness struct {
 }
 
 func (h *Harness) Run() {
+
 	fmt.Println("Running fetcher:", h.fetcher.Provider().UID)
+	fmt.Println("Provider:\n")
 	spew.Dump(h.fetcher.Provider())
+
+	fmt.Println("getting URLs:\n")
+
+	timeout := time.Duration(30) * time.Second
+	client := thingfulx.NewClient("thingful", timeout)
+	delay := time.Duration(30) * time.Second
+
+	URLs, err = h.fetcher.URLS(client, delay)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Printf("Got %v URLS\n", len(URLs))
+
+	for _, u := range URLs {
+		fmt.Println(u)
+	}
+
 }
