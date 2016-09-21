@@ -44,7 +44,7 @@ func (h *Harness) Run() {
 	client := thingfulx.NewClient("thingful", timeout)
 	delay := time.Duration(30) * time.Second
 
-	URLs, err = h.fetcher.URLS(client, delay)
+	URLs, err := h.fetcher.URLS(client, delay)
 	if err != nil {
 		panic(err)
 	}
