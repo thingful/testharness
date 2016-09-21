@@ -58,12 +58,12 @@ func (h *Harness) Run() {
 
 	/// FETCH
 	ctx := context.Background()
-	client := thingfulx.NewClient("thingful", time.Duration(1)*time.Second)
+	clientFetch := thingfulx.NewClient("thingful", time.Duration(1)*time.Second)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
 
 	for _, u := range URLs {
 		fmt.Printf("fetching %s\n", u)
-		things, err := h.fetcher.Fetch(ctx, u, client, timeProvider)
+		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
 		if err == nil {
 
 		}
