@@ -1,0 +1,6 @@
+package: github.com/thingful/testharness
+import:
+- package: github.com/thingful/httpmock
+- package: github.com/thingful/thingfulx
+  version: fetcherbuilder
+- package: github.com/stretchr/testify
