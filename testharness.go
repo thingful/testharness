@@ -43,7 +43,7 @@ func (h *Harness) RunAll() {
 	}
 
 	showSize := int(math.Min(3, float64(len(URLs))))
-	fmt.Printf("URLs has %d entry but only showing first %d:\n", len(URLs), showSize)
+	fmt.Printf("URLs has %d entry, showing first %d:\n", len(URLs), showSize)
 
 	showURLs := URLs[0:showSize]
 
@@ -54,18 +54,26 @@ func (h *Harness) RunAll() {
 
 	//FETCH
 	fmt.Println("FETCH:\n")
+	fmt.Printf("Fetch %d entry, showing result of first %d:\n", len(URLs), showSize)
+
 	ctx := context.Background()
 	clientFetch := thingfulx.NewClient("thingful", timeout)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
 
-	for _, u := range showURLs {
-		fmt.Printf("fetching:  %s\n", u)
-		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
+	for i := 0; i < len(URLs); i++ {
+		if i < showSize {
+			fmt.Printf("fetching:  %s \n", URLs[i])
+		}
+
+		things, err := h.fetcher.Fetch(ctx, URLs[i], clientFetch, timeProvider)
 		if err != nil {
 			panic(err)
 		}
-		spew.Dump(things)
-		fmt.Println("\n")
+
+		if i < showSize {
+			spew.Dump(things)
+			fmt.Println("\n")
+		}
 	}
 
 }
