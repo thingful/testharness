@@ -32,4 +32,5 @@ type Harness struct {
 
 func (h *Harness) Run() {
 	fmt.Println("Running fetcher:", h.fetcher.Provider().UID)
+	spew.Dump(h.fetcher.Provider())
 }
