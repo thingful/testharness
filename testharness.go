@@ -40,7 +40,7 @@ func (h *Harness) RunAll() {
 	URLs, err := h.fetcher.URLS(client, delay)
 	if err != nil {
 		// panic(err)
-		fmt.Printf("Error from URLs: %s\n", err) // we should log this
+		fmt.Printf("ERROR from URLs: %s\n", err.Error()) // we should log this
 
 	}
 
@@ -64,13 +64,13 @@ func (h *Harness) RunAll() {
 
 	for i := 0; i < len(URLs); i++ {
 		if i < showSize {
-			fmt.Printf("fetching:  %s\n", URLs[i])
+			fmt.Printf("Fetching:  %s\n", URLs[i])
 		}
 
 		things, err := h.fetcher.Fetch(ctx, URLs[i], clientFetch, timeProvider)
 		if err != nil {
 			// panic(err)
-			fmt.Printf("Error from Fetch: %s\n", err.Error()) // we should log this
+			fmt.Printf("ERROR from Fetch: %s\n", err.Error()) // we should log this
 
 		}
 
@@ -91,11 +91,11 @@ func (h *Harness) RunFetch(urls []string) {
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
 
 	for _, u := range urls {
-		fmt.Printf("fetching:  %s\n", u)
+		fmt.Printf("Fetching:  %s\n", u)
 		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
 		if err != nil {
 			// panic(err)
-			fmt.Printf("Error from Fetch: %s\n", err.Error()) // we should log this
+			fmt.Printf("ERROR from Fetch: %s\n", err.Error()) // we should log this
 
 		}
 		spew.Dump(things)
