@@ -39,7 +39,9 @@ func (h *Harness) RunAll() {
 
 	URLs, err := h.fetcher.URLS(client, delay)
 	if err != nil {
-		panic(err)
+		// panic(err)
+		fmt.Printf("Error from URLs: %s\n", err) // we should log this
+
 	}
 
 	showSize := int(math.Min(3, float64(len(URLs))))
@@ -62,12 +64,14 @@ func (h *Harness) RunAll() {
 
 	for i := 0; i < len(URLs); i++ {
 		if i < showSize {
-			fmt.Printf("fetching:  %s \n", URLs[i])
+			fmt.Printf("fetching:  %s\n", URLs[i])
 		}
 
 		things, err := h.fetcher.Fetch(ctx, URLs[i], clientFetch, timeProvider)
 		if err != nil {
-			panic(err)
+			// panic(err)
+			fmt.Printf("Error from Fetch: %s\n", err.Error()) // we should log this
+
 		}
 
 		if i < showSize {
@@ -90,7 +94,9 @@ func (h *Harness) RunFetch(urls []string) {
 		fmt.Printf("fetching:  %s\n", u)
 		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
 		if err != nil {
-			panic(err)
+			// panic(err)
+			fmt.Printf("Error from Fetch: %s\n", err.Error()) // we should log this
+
 		}
 		spew.Dump(things)
 		fmt.Println("\n")
