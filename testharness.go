@@ -13,7 +13,7 @@ var (
 	URLsErrorCount  int = 0
 	FetchErrorCount int = 0
 	URLsError       []error
-	FetchError      []error
+	FetchError      []string
 )
 
 func Register(builder thingfulx.FetcherBuilder) (*Harness, error) {
@@ -78,8 +78,11 @@ func (h *Harness) RunAll() {
 		things, err := h.fetcher.Fetch(ctx, URLs[i], clientFetch, timeProvider)
 		if err != nil {
 			// panic(err)
-			fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
-			FetchError = append(FetchError, err)
+			// err.Error() += " from " + URLs[i]
+			if i < showSize {
+				fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
+			}
+			FetchError = append(FetchError, URLs[i]+"\n"+err.Error())
 			FetchErrorCount += 1
 		}
 
@@ -97,6 +100,7 @@ func (h *Harness) RunAll() {
 	fmt.Printf("\nFetchErrorCount = %d\n", FetchErrorCount)
 	for _, u := range FetchError {
 		fmt.Println(u)
+		fmt.Println()
 	}
 	if URLsErrorCount == 0 && FetchErrorCount == 0 {
 		fmt.Printf("\nEverything seems to be OK\n\n")
@@ -121,7 +125,7 @@ func (h *Harness) RunFetch(urls []string) {
 		if err != nil {
 			// panic(err)
 			fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
-			FetchError = append(FetchError, err)
+			FetchError = append(FetchError, err.Error())
 			FetchErrorCount += 1
 		}
 		spew.Dump(things)
