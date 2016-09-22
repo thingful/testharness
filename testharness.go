@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+var (
+	URLsErrorCount  int = 0
+	FetchErrorCount int = 0
+)
+
 func Register(builder thingfulx.FetcherBuilder) (*Harness, error) {
 	fetcher, err := builder()
 	if err != nil {
@@ -40,8 +45,8 @@ func (h *Harness) RunAll() {
 	URLs, err := h.fetcher.URLS(client, delay)
 	if err != nil {
 		// panic(err)
-		fmt.Printf("ERROR from URLs: %s\n", err.Error()) // we should log this
-
+		fmt.Printf("## ERROR from URLs: %s\n", err.Error()) // we should log this
+		URLsErrorCount += 1
 	}
 
 	showSize := int(math.Min(3, float64(len(URLs))))
@@ -70,8 +75,8 @@ func (h *Harness) RunAll() {
 		things, err := h.fetcher.Fetch(ctx, URLs[i], clientFetch, timeProvider)
 		if err != nil {
 			// panic(err)
-			fmt.Printf("ERROR from Fetch: %s\n", err.Error()) // we should log this
-
+			fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
+			FetchErrorCount += 1
 		}
 
 		if i < showSize {
@@ -80,9 +85,16 @@ func (h *Harness) RunAll() {
 		}
 	}
 
+	fmt.Printf("\n########### SUMMARY ###########\n")
+	fmt.Printf("URLsErrorCount = %d\n", URLsErrorCount)
+	fmt.Printf("FetchErrorCount = %d\n", FetchErrorCount)
+	if URLsErrorCount == 0 && FetchErrorCount == 0 {
+		fmt.Printf("Everything seems to be OK\n")
+	}
 }
 
 func (h *Harness) RunFetch(urls []string) {
+	FetchErrorCount = 0
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("FETCH:\n")
 	timeout := time.Duration(60) * time.Second
@@ -95,10 +107,13 @@ func (h *Harness) RunFetch(urls []string) {
 		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
 		if err != nil {
 			// panic(err)
-			fmt.Printf("ERROR from Fetch: %s\n", err.Error()) // we should log this
-
+			fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
+			FetchErrorCount += 1
 		}
 		spew.Dump(things)
 		fmt.Println("\n")
 	}
+
+	fmt.Printf("SUMMARY:")
+	fmt.Printf("FetchErrorCount = %d\n", FetchErrorCount)
 }
