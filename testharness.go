@@ -11,7 +11,9 @@ import (
 
 var (
 	URLsErrorCount  int = 0
+	URLsCount       int = 0
 	FetchErrorCount int = 0
+	ThingsCount     int = 0
 	URLsError       []error
 	FetchError      []string
 )
@@ -53,6 +55,7 @@ func (h *Harness) RunAll() {
 	}
 
 	showSize := int(math.Min(3, float64(len(URLs))))
+	URLsCount = len(URLs)
 	fmt.Printf("URLs has %d entry, showing first %d:\n", len(URLs), showSize)
 
 	showURLs := URLs[0:showSize]
@@ -85,31 +88,38 @@ func (h *Harness) RunAll() {
 			FetchError = append(FetchError, URLs[i]+"\n"+err.Error())
 			FetchErrorCount += 1
 		}
+		ThingsCount += len(things)
 
 		if i < showSize {
-			spew.Dump(things)
+			fmt.Printf("there are %d things but printing first one\n", len(things))
+			spew.Dump(things[0])
 			fmt.Println("\n")
 		}
 	}
 
 	fmt.Printf("\n########### SUMMARY ###########\n")
-	fmt.Printf("URLsErrorCount = %d\n", URLsErrorCount)
+	fmt.Printf("Total URLs errors = %d\n", URLsErrorCount)
 	for _, u := range URLsError {
 		fmt.Println(u)
 	}
-	fmt.Printf("\nFetchErrorCount = %d\n", FetchErrorCount)
+	fmt.Printf("\nTotal URLs = %d\n", URLsCount)
+
+	fmt.Printf("\nTotal fetch errors = %d\n", FetchErrorCount)
 	for _, u := range FetchError {
 		fmt.Println(u)
 		fmt.Println()
 	}
+	fmt.Printf("\nTotal things fetched = %d\n", ThingsCount)
 	if URLsErrorCount == 0 && FetchErrorCount == 0 {
 		fmt.Printf("\nEverything seems to be OK\n\n")
 	} else {
 		fmt.Printf("\nThere seems to be problems\n\n")
 	}
+
 }
 
 func (h *Harness) RunFetch(urls []string) {
+	ThingsCount = 0
 	FetchErrorCount = 0
 	FetchError = FetchError[:0]
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
@@ -133,8 +143,17 @@ func (h *Harness) RunFetch(urls []string) {
 	}
 
 	fmt.Printf("SUMMARY:")
-	fmt.Printf("FetchErrorCount = %d\n", FetchErrorCount)
+
+	fmt.Printf("\nTotal fetch errors = %d\n", FetchErrorCount)
 	for _, u := range FetchError {
 		fmt.Println(u)
+		fmt.Println()
 	}
+	fmt.Printf("\nTotal things fetched = %d\n", ThingsCount)
+	if URLsErrorCount == 0 && FetchErrorCount == 0 {
+		fmt.Printf("\nEverything seems to be OK\n\n")
+	} else {
+		fmt.Printf("\nThere seems to be problems\n\n")
+	}
+
 }
