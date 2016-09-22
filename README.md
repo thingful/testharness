@@ -9,7 +9,7 @@ Light weight tool for fetcher develper to run real test locally without Pomelo
   version: 0.1.8
 - package: github.com/thingful/testharness
 ```
-* pull latest `bitbucket.org/thingful/template`
+* pull latest `bitbucket.org/thingful/template` at the moment it's `add-harness` branch
 * copy `cmd` folder from `bitbucket.org/thingful/template` to the fetcher folder that you are testing
 * change the `template` in the main.go to the package name that you are testing
     * one in import `"bitbucket.com/thingful/template"`
