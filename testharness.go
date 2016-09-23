@@ -34,7 +34,7 @@ type Harness struct {
 	fetcher thingfulx.Fetcher
 }
 
-func (h *Harness) RunAll() {
+func (h *Harness) RunAll(ctx context.Context) {
 
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("Provider:\n")
@@ -70,7 +70,6 @@ func (h *Harness) RunAll() {
 	fmt.Println("FETCH:\n")
 	fmt.Printf("Fetch %d entry, showing result of first %d:\n", len(URLs), showSize)
 
-	ctx := context.Background()
 	clientFetch := thingfulx.NewClient("thingful", timeout)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
 
@@ -119,14 +118,13 @@ func (h *Harness) RunAll() {
 
 }
 
-func (h *Harness) RunFetch(urls []string) {
+func (h *Harness) RunFetch(ctx context.Context, urls []string) {
 	ThingsCount = 0
 	FetchErrorCount = 0
 	FetchError = FetchError[:0]
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("FETCH:\n")
 	timeout := time.Duration(60) * time.Second
-	ctx := context.Background()
 	clientFetch := thingfulx.NewClient("thingful", timeout)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
 
