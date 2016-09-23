@@ -2,11 +2,12 @@ package testharness
 
 import (
 	"fmt"
+	"math"
+	"time"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/thingful/thingfulx"
 	"golang.org/x/net/context"
-	"math"
-	"time"
 )
 
 var (
