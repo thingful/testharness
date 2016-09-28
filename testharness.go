@@ -11,12 +11,13 @@ import (
 )
 
 var (
-	URLsErrorCount  int = 0
-	URLsCount       int = 0
-	FetchErrorCount int = 0
-	ThingsCount     int = 0
-	URLsError       []error
-	FetchError      []string
+	URLsErrorCount   int = 0
+	URLsCount        int = 0
+	FetchErrorCount  int = 0
+	ThingsCount      int = 0
+	EmptyThingsCount int = 0
+	URLsError        []error
+	FetchError       []string
 )
 
 func Register(builder thingfulx.FetcherBuilder) (*Harness, error) {
@@ -91,7 +92,13 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 			FetchError = append(FetchError, URLs[i]+"\n"+err.Error())
 			FetchErrorCount += 1
 		} else {
-			ThingsCount += len(things)
+
+			if len(things) == 0 {
+				EmptyThingsCount += 1
+			} else {
+				ThingsCount += len(things)
+			}
+
 		}
 
 		if i < showSize {
@@ -121,6 +128,8 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 		fmt.Println()
 	}
 	fmt.Printf("\nTotal things fetched = %d\n", ThingsCount)
+	fmt.Printf("\nTotal empty things = %d\n", EmptyThingsCount)
+
 	if URLsErrorCount == 0 && FetchErrorCount == 0 {
 		fmt.Printf("\nEverything seems to be OK\n\n")
 	} else {
@@ -131,6 +140,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval time.Duration) {
 	ThingsCount = 0
+	EmptyThingsCount = 0
 	FetchErrorCount = 0
 	FetchError = FetchError[:0]
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
@@ -147,7 +157,12 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 			FetchError = append(FetchError, err.Error())
 			FetchErrorCount += 1
 		} else {
-			ThingsCount += len(things)
+
+			if len(things) == 0 {
+				EmptyThingsCount += 1
+			} else {
+				ThingsCount += len(things)
+			}
 		}
 		spew.Dump(things)
 		fmt.Println("\n")
@@ -162,6 +177,7 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 		fmt.Println()
 	}
 	fmt.Printf("\nTotal things fetched = %d\n", ThingsCount)
+	fmt.Printf("\nTotal empty things = %d\n", EmptyThingsCount)
 	if URLsErrorCount == 0 && FetchErrorCount == 0 {
 		fmt.Printf("\nEverything seems to be OK\n\n")
 	} else {
