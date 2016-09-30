@@ -72,7 +72,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	fmt.Println("\n\n")
 	// WE CHECK IF THESE URLS ARE ALLOWED HERE
 	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS")
-	allAllowed, allowErr := checkURLs(urls)
+	allAllowed, allowErr := checkURLs(URLs)
 	if allowErr != nil {
 		fmt.Printf("there is error from checkURLs %s\n", allowErr)
 		return
