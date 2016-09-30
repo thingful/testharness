@@ -100,8 +100,6 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 		things, err := h.fetcher.Fetch(ctx, URLs[i], clientFetch, timeProvider)
 		if err != nil {
-			// panic(err)
-			// err.Error() += " from " + URLs[i]
 			if i < showSize {
 				fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
 			}
@@ -181,7 +179,7 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 		fmt.Printf("Fetching:  %s\n", u)
 		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
 		if err != nil {
-			fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
+			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
 			FetchErrorCount += 1
 		} else {
@@ -230,11 +228,10 @@ func checkURLs(urls []string) (bool, error) {
 
 	robotsAddress := ""
 	allAllowed := true
-	robots, err := robotstxt.FromString("User-agent: *\nDisallow:")
+	robots, err := robotstxt.FromString("User-agent: *\nDisallow:") //init robots
 	if err != nil {
 		return false, err
 	}
-	// for every urls, check if it's the same robot, if not request this specific robot
 
 	for _, u1 := range urls {
 
@@ -243,11 +240,10 @@ func checkURLs(urls []string) (bool, error) {
 			return false, err
 		}
 
-		newRobotsAddress := u.Scheme + "://" + u.Host + "/robots.txt"
+		newRobotsAddress := u.Scheme + "://" + u.Host + "/robots.txt" // robots.txt address
 
-		if newRobotsAddress != robotsAddress {
+		if newRobotsAddress != robotsAddress { // check if this is the same robots.txt, if not request new one
 
-			// fmt.Println("this is new robot")
 			robotsAddress = newRobotsAddress
 			resp, err := http.Get(robotsAddress)
 			if err != nil {
@@ -255,12 +251,11 @@ func checkURLs(urls []string) (bool, error) {
 			}
 			defer resp.Body.Close()
 			body, err := ioutil.ReadAll(resp.Body)
-			// fmt.Printf("body = %s\n", body)
 			robots, err = robotstxt.FromBytes(body)
 
 		}
 
-		allow := robots.TestAgent(u.Path, "thingful")
+		allow := robots.TestAgent(u.Path, "thingful") // then check if this path is allowed or not
 		if !allow {
 			fmt.Printf("%s is NOT allowed\n", u.Path)
 			allAllowed = false
