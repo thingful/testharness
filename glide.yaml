@@ -8,3 +8,4 @@ import:
 - package: github.com/davecgh/go-spew
   subpackages:
   - spew
+- package: "github.com/temoto/robotstxt"

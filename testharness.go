@@ -6,8 +6,12 @@ import (
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/temoto/robotstxt"
 	"github.com/thingful/thingfulx"
 	"golang.org/x/net/context"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 )
 
 var (
@@ -66,6 +70,18 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 		fmt.Println(u)
 	}
 	fmt.Println("\n\n")
+	// WE CHECK IF THESE URLS ARE ALLOWED HERE
+	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS")
+	allAllowed, allowErr := checkURLs(urls)
+	if allowErr != nil {
+		fmt.Printf("there is error from checkURLs %s\n", allowErr)
+		return
+	}
+
+	if !allAllowed {
+		fmt.Printf("the URLs are blocked by robots.txt")
+		return
+	}
 
 	//FETCH
 	totalFetch = min([]int{totalFetch, len(URLs)})
@@ -145,6 +161,18 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 	FetchError = FetchError[:0]
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("FETCH:\n")
+	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS")
+	allAllowed, allowErr := checkURLs(urls)
+	if allowErr != nil {
+		fmt.Printf("there is error from checkURLs %s\n", allowErr)
+		return
+	}
+
+	if !allAllowed {
+		fmt.Printf("the URLs are blocked by robots.txt")
+		return
+	}
+
 	timeout := time.Duration(60) * time.Second
 	clientFetch := thingfulx.NewClient("thingful", timeout)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
@@ -195,5 +223,51 @@ func min(number []int) int {
 	}
 
 	return min
+
+}
+
+func checkURLs(urls []string) (bool, error) {
+
+	robotsAddress := ""
+	allAllowed := true
+	robots, err := robotstxt.FromString("User-agent: *\nDisallow:")
+	if err != nil {
+		return false, err
+	}
+	// for every urls, check if it's the same robot, if not request this specific robot
+
+	for _, u1 := range urls {
+
+		u, err := url.Parse(u1)
+		if err != nil {
+			return false, err
+		}
+
+		newRobotsAddress := u.Scheme + "://" + u.Host + "/robots.txt"
+
+		if newRobotsAddress != robotsAddress {
+
+			// fmt.Println("this is new robot")
+			robotsAddress = newRobotsAddress
+			resp, err := http.Get(robotsAddress)
+			if err != nil {
+				return false, err
+			}
+			defer resp.Body.Close()
+			body, err := ioutil.ReadAll(resp.Body)
+			// fmt.Printf("body = %s\n", body)
+			robots, err = robotstxt.FromBytes(body)
+
+		}
+
+		allow := robots.TestAgent(u.Path, "thingful")
+		if !allow {
+			fmt.Printf("%s is NOT allowed\n", u.Path)
+			allAllowed = false
+		}
+
+	}
+
+	return allAllowed, nil
 
 }
