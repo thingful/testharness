@@ -71,7 +71,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	}
 	fmt.Println("\n\n")
 	// WE CHECK IF THESE URLS ARE ALLOWED HERE
-	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS")
+	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
 	allAllowed, allowErr := checkURLs(URLs)
 	if allowErr != nil {
 		fmt.Printf("there is error from checkURLs %s\n", allowErr)
@@ -79,7 +79,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	}
 
 	if !allAllowed {
-		fmt.Printf("the URLs are blocked by robots.txt")
+		fmt.Printf("the URLs are blocked by robots.txt\n")
 		return
 	}
 
@@ -161,7 +161,7 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 	FetchError = FetchError[:0]
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("FETCH:\n")
-	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS")
+	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
 	allAllowed, allowErr := checkURLs(urls)
 	if allowErr != nil {
 		fmt.Printf("there is error from checkURLs %s\n", allowErr)
@@ -169,7 +169,7 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 	}
 
 	if !allAllowed {
-		fmt.Printf("the URLs are blocked by robots.txt")
+		fmt.Printf("the URLs are blocked by robots.txt\n")
 		return
 	}
 
