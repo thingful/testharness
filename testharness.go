@@ -257,7 +257,7 @@ func checkURLs(urls []string) (bool, error) {
 
 		allow := robots.TestAgent(u.Path, "thingful") // then check if this path is allowed or not
 		if !allow {
-			fmt.Printf("%s is NOT allowed\n", u.Path)
+			fmt.Printf("%s is NOT allowed\n", u1)
 			allAllowed = false
 		}
 
