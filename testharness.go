@@ -39,7 +39,7 @@ type Harness struct {
 	fetcher thingfulx.Fetcher
 }
 
-func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, totalFetch int) {
+func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, totalFetch int, ignoreRobots bool) {
 
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("Provider:\n")
@@ -71,16 +71,19 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	}
 	fmt.Println("\n\n")
 	// WE CHECK IF THESE URLS ARE ALLOWED HERE
-	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
-	allAllowed, allowErr := checkURLs(URLs)
-	if allowErr != nil {
-		fmt.Printf("there is error from checkURLs %s\n", allowErr)
-		return
-	}
 
-	if !allAllowed {
-		fmt.Printf("the URLs are blocked by robots.txt\n")
-		return
+	if !ignoreRobots {
+		fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
+		allAllowed, allowErr := checkURLs(URLs)
+		if allowErr != nil {
+			fmt.Printf("there is error from checkURLs %s\n", allowErr)
+			return
+		}
+
+		if !allAllowed {
+			fmt.Printf("the URLs are blocked by robots.txt\n")
+			return
+		}
 	}
 
 	//FETCH
@@ -152,7 +155,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 }
 
-func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval time.Duration) {
+func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval time.Duration, ignoreRobots bool) {
 	ThingsCount = 0
 	EmptyThingsCount = 0
 	FetchErrorCount = 0
@@ -160,15 +163,18 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("FETCH:\n")
 	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
-	allAllowed, allowErr := checkURLs(urls)
-	if allowErr != nil {
-		fmt.Printf("there is error from checkURLs %s\n", allowErr)
-		return
-	}
 
-	if !allAllowed {
-		fmt.Printf("the URLs are blocked by robots.txt\n")
-		return
+	if !ignoreRobots {
+		allAllowed, allowErr := checkURLs(urls)
+		if allowErr != nil {
+			fmt.Printf("there is error from checkURLs %s\n", allowErr)
+			return
+		}
+
+		if !allAllowed {
+			fmt.Printf("the URLs are blocked by robots.txt\n")
+			return
+		}
 	}
 
 	timeout := time.Duration(60) * time.Second
