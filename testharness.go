@@ -212,6 +212,69 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 
 }
 
+func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval time.Duration) {
+	// When the testharness uses an individual thing's DataURL
+	// the resulting slice of things **MUST** contain a Thing with that same individual DataURL.
+	// It **MAY** also contain other things if that single fetch happens to also retrieve them.
+
+	fmt.Printf("########### Checking Access for: %s ########### \n", h.fetcher.Provider().UID)
+
+	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
+	allAllowed, allowErr := checkURLs(urls)
+	if allowErr != nil {
+		fmt.Printf("there is error from checkURLs %s\n", allowErr)
+		return
+	}
+
+	if !allAllowed {
+		fmt.Printf("the URLs are blocked by robots.txt\n")
+		return
+	}
+
+	timeout := time.Duration(60) * time.Second
+	clientFetch := thingfulx.NewClient("thingful", timeout)
+	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
+	foundUniqueUrl := 0 // to store how many have we found
+	for _, u := range urls {
+
+		foundUniqueUrl = 0
+
+		fmt.Printf("Fetching:  %s\n", u)
+		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
+		if err != nil {
+			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
+			FetchError = append(FetchError, err.Error())
+			FetchErrorCount += 1
+		} else {
+
+			if len(things) == 0 {
+				fmt.Printf("ERROR this URL: %s returns nothing\n", u)
+				return
+			} else {
+				for i := 0; i < len(things); i++ {
+					if u == things[i].DataURL { // check if one of "things" contain the same urls that used to access it
+						foundUniqueUrl++
+						fmt.Printf("found same unique URL: %s \n", things[i].DataURL)
+					}
+				}
+			}
+
+		}
+
+		if foundUniqueUrl == 1 {
+			fmt.Printf("SUCCESS found one match: \n")
+		} else if foundUniqueUrl > 1 {
+			fmt.Printf("ERROR found %d of the same unique URL: \n", foundUniqueUrl)
+			return
+		} else if foundUniqueUrl == 0 {
+			fmt.Printf("ERROR can't find anything that match: %s \n", u)
+			return
+		}
+
+	}
+
+}
+
 func min(number []int) int {
 
 	min := 300
