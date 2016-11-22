@@ -91,6 +91,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 	clientFetch := thingfulx.NewClient("thingful", timeout)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
+	var dataURLs []string // dataURL to check
 
 	for i := 0; i < totalFetch; i++ {
 
@@ -111,6 +112,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 				EmptyThingsCount += 1
 			} else {
 				ThingsCount += len(things)
+				dataURLs = append(dataURLs, things[0].DataURL) // save 1 dataUrl from each fetch to test
 			}
 
 		}
@@ -129,6 +131,50 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 		time.Sleep(fetchInterval)
 	}
 
+	//ACCESS
+	fmt.Printf("########### Checking Access for: %s ########### \n", h.fetcher.Provider().UID)
+	successAccessCount := 0
+	failureAccessCount := 0
+	foundUniqueUrl := 0 // to store how many have we found
+	for _, u := range dataURLs {
+
+		foundUniqueUrl = 0
+
+		fmt.Printf("Fetching:  %s\n", u)
+		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
+		if err != nil {
+			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
+			FetchError = append(FetchError, err.Error())
+			FetchErrorCount += 1
+		} else {
+
+			if len(things) == 0 {
+				fmt.Printf("ERROR this URL: %s returns nothing\n", u)
+				failureAccessCount += 1
+			} else {
+				for i := 0; i < len(things); i++ {
+					if u == things[i].DataURL { // check if one of "things" contain the same urls that used to access it
+						foundUniqueUrl++
+						fmt.Printf("found same unique URL: %s \n", things[i].DataURL)
+					}
+				}
+			}
+
+		}
+
+		if foundUniqueUrl == 1 {
+			fmt.Printf("SUCCESS found one match: \n")
+			successAccessCount += 1
+		} else if foundUniqueUrl > 1 {
+			fmt.Printf("ERROR found %d of the same unique URL: \n", foundUniqueUrl)
+			failureAccessCount += 1
+		} else if foundUniqueUrl == 0 {
+			fmt.Printf("ERROR can't find anything that match: %s \n", u)
+			failureAccessCount += 1
+		}
+
+	}
+
 	fmt.Printf("\n########### SUMMARY ###########\n")
 	fmt.Printf("Total URLs errors = %d\n", URLsErrorCount)
 	for _, u := range URLsError {
@@ -144,7 +190,10 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	fmt.Printf("\nTotal things fetched = %d\n", ThingsCount)
 	fmt.Printf("\nTotal empty things = %d\n", EmptyThingsCount)
 
-	if URLsErrorCount == 0 && FetchErrorCount == 0 {
+	fmt.Printf("\nTotal things access attemp = %d\n", len(dataURLs))
+	fmt.Printf("\nTotal things access successfully = %d\n", successAccessCount)
+
+	if URLsErrorCount == 0 && FetchErrorCount == 0 && failureAccessCount == 0 {
 		fmt.Printf("\nEverything seems to be OK\n\n")
 	} else {
 		fmt.Printf("\nThere seems to be problems\n\n")
