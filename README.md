@@ -35,7 +35,9 @@ There are 3 main features, these funtions can be used separately.
 
 ### RunAll
 RunAll runs URL method of this fetcher first
+
 Then use the result URLs to fetch
+
 Then for each URL to fetch, get one dataURL from first thing returned to access
 ```
 fetchAllInterval := time.Duration(3) * time.Second // interval between each Fetch
