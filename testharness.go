@@ -46,7 +46,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	spew.Dump(h.fetcher.Provider())
 	fmt.Println("\n\n")
 
-	/// URLS
+	/// ############## URLS ###############
 	fmt.Println("URLS:\n")
 	timeout := time.Duration(60) * time.Second
 	client := thingfulx.NewClient("thingful", timeout)
@@ -70,7 +70,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 		fmt.Println(u)
 	}
 	fmt.Println("\n\n")
-	// WE CHECK IF THESE URLS ARE ALLOWED HERE
+	// WE CHECK IF THESE URLS ARE ALLOWED HERE ###############
 	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
 	allAllowed, allowErr := checkURLs(URLs)
 	if allowErr != nil {
@@ -83,7 +83,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 		return
 	}
 
-	//FETCH
+	// ############### FETCH ###############
 	totalFetch = min([]int{totalFetch, len(URLs)})
 	showSize = min([]int{totalFetch, 3})
 	fmt.Println("FETCH:\n")
@@ -131,7 +131,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 		time.Sleep(fetchInterval)
 	}
 
-	//ACCESS
+	// ############### ACCESS ###############
 	fmt.Printf("########### Checking Access for: %s ########### \n", h.fetcher.Provider().UID)
 	successAccessCount := 0
 	failureAccessCount := 0
@@ -140,7 +140,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 		foundUniqueUrl = 0
 
-		fmt.Printf("Fetching:  %s\n", u)
+		fmt.Printf("Accessing:  %s\n", u)
 		things, err := h.fetcher.Fetch(ctx, u, clientFetch, timeProvider)
 		if err != nil {
 			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
@@ -155,20 +155,20 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 				for i := 0; i < len(things); i++ {
 					if u == things[i].DataURL { // check if one of "things" contain the same urls that used to access it
 						foundUniqueUrl++
-						fmt.Printf("found same unique URL: %s \n", things[i].DataURL)
+						fmt.Printf("Found same unique dataURL: %s \n", things[i].DataURL)
 					}
 				}
 			}
 
 		}
 
-		if foundUniqueUrl == 1 {
+		if foundUniqueUrl == 1 { // we only expect to find 1 copy of dataURL
 			fmt.Printf("SUCCESS found one match: \n")
 			successAccessCount += 1
-		} else if foundUniqueUrl > 1 {
+		} else if foundUniqueUrl > 1 { // if we found more than one, give warning
 			fmt.Printf("ERROR found %d of the same unique URL: \n", foundUniqueUrl)
 			failureAccessCount += 1
-		} else if foundUniqueUrl == 0 {
+		} else if foundUniqueUrl == 0 { // if we found nothing, also give warning
 			fmt.Printf("ERROR can't find anything that match: %s \n", u)
 			failureAccessCount += 1
 		}
@@ -298,7 +298,6 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 
 			if len(things) == 0 {
 				fmt.Printf("ERROR this URL: %s returns nothing\n", u)
-				return
 			} else {
 				for i := 0; i < len(things); i++ {
 					if u == things[i].DataURL { // check if one of "things" contain the same urls that used to access it
@@ -310,14 +309,12 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 
 		}
 
-		if foundUniqueUrl == 1 {
+		if foundUniqueUrl == 1 { // we only expect to find 1 copy of dataURL
 			fmt.Printf("SUCCESS found one match: \n")
-		} else if foundUniqueUrl > 1 {
+		} else if foundUniqueUrl > 1 { // if we find more than 1, give warning
 			fmt.Printf("ERROR found %d of the same unique URL: \n", foundUniqueUrl)
-			return
-		} else if foundUniqueUrl == 0 {
+		} else if foundUniqueUrl == 0 { // also if we can't find any, give warning
 			fmt.Printf("ERROR can't find anything that match: %s \n", u)
-			return
 		}
 
 	}
