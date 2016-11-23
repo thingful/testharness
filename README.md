@@ -31,7 +31,7 @@ Light weight tool for fetcher develpers to run real tests locally without Pomelo
 ## How to use
 The code that runs TestHarness is at `com/harness/main.go`. This code is called by `make harness` command
 
-There are 3 main features, these funtions can be used separately.
+There are 3 main features, these functions can be used separately.
 
 ### RunAll
 RunAll runs URL method of this fetcher first
@@ -47,7 +47,7 @@ harness.RunAll(context.Background(), fetchAllInterval, urlsToFetch)
 
 
 ### RunFetch
-RunFetch only fetch the spedified URLs
+RunFetch only fetch the specified URLs
 ```
 urls := []string{ // this is the URL produced by Fetcher's URL method
   "http://marlin.casa.ucl.ac.uk/~ollie/bikesapi/load.php?scheme=london",
@@ -59,8 +59,8 @@ harness.RunFetch(context.Background(), urls, fetchInterval)
 ### RunAccess
 RunAccess fetch the dataURLs, then check that ONLY one thing returned from Fetch has the same dataURL
 ```
-dataUrls := []string{ // this is the unique dataURL of each thing
-  "http://marlin.casa.ucl.ac.uk/~ollie/bikesapi/load.php?scheme=london#id=73",  to fetch
+dataUrls := []string{ // this is the unique dataURL of each thing to fetch
+  "http://marlin.casa.ucl.ac.uk/~ollie/bikesapi/load.php?scheme=london#id=73",
 }
 fetchInterval := time.Duration(5) * time.Second // interval between each Access
 harness.RunAccess(context.Background(), dataUrls, fetchInterval)
