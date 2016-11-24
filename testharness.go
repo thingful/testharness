@@ -346,7 +346,7 @@ func checkURLs(urls []string) (bool, error) {
 
 	if WhiteListed {
 
-		fmt.Printf("THIS PROVIDER IS WHITELISTED, IGNORING ROBOTS.TXT CHECK\n")
+		fmt.Println("THIS PROVIDER IS WHITELISTED, IGNORING ROBOTS.TXT CHECK")
 		allAllowed = true
 
 	} else {
