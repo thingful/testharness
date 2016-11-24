@@ -337,45 +337,50 @@ func min(number []int) int {
 
 func checkURLs(urls []string) (bool, error) {
 
-	robotsAddress := ""
 	allAllowed := true
+	robotsAddress := ""
 	robots, err := robotstxt.FromString("User-agent: *\nDisallow:") //init robots
 	if err != nil {
 		return false, err
 	}
 
-	for _, u1 := range urls {
+	if WhiteListed {
 
-		u, err := url.Parse(u1)
-		if err != nil {
-			return false, err
-		}
+		fmt.Printf("THIS PROVIDER IS WHITELISTED, IGNORING ROBOTS.TXT CHECK\n")
+		allAllowed = true
 
-		newRobotsAddress := u.Scheme + "://" + u.Host + "/robots.txt" // robots.txt address
+	} else {
 
-		if newRobotsAddress != robotsAddress { // check if this is the same robots.txt, if not request new one
+		for _, u1 := range urls {
 
-			robotsAddress = newRobotsAddress
-			resp, err := http.Get(robotsAddress)
+			u, err := url.Parse(u1)
 			if err != nil {
 				return false, err
 			}
-			defer resp.Body.Close()
-			body, err := ioutil.ReadAll(resp.Body)
-			robots, err = robotstxt.FromBytes(body)
+
+			newRobotsAddress := u.Scheme + "://" + u.Host + "/robots.txt" // robots.txt address
+
+			if newRobotsAddress != robotsAddress { // check if this is the same robots.txt, if not request new one
+
+				robotsAddress = newRobotsAddress
+				resp, err := http.Get(robotsAddress)
+				if err != nil {
+					return false, err
+				}
+				defer resp.Body.Close()
+				body, err := ioutil.ReadAll(resp.Body)
+				robots, err = robotstxt.FromBytes(body)
+
+			}
+
+			allow := robots.TestAgent(u.Path, "thingful") // then check if this path is allowed or not
+			if !allow {
+				fmt.Printf("%s is NOT allowed\n", u1)
+				allAllowed = false
+			}
 
 		}
 
-		allow := robots.TestAgent(u.Path, "thingful") // then check if this path is allowed or not
-		if !allow {
-			fmt.Printf("%s is NOT allowed\n", u1)
-			allAllowed = false
-		}
-
-	}
-
-	if WhiteListed {
-		allAllowed = true
 	}
 
 	return allAllowed, nil
