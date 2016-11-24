@@ -33,10 +33,12 @@ The code that runs TestHarness is at `com/harness/main.go`. This code is called 
 
 ### Register
 Init by passing the fetcher and whitelisted bool to Register method.
-`Register(builder thingfulx.FetcherBuilder, whitelisted bool)`
-If this fetcher whitelisted = true, it means that testHarness will ignore robots.txt completely.
 
-For example.
+`Register(builder thingfulx.FetcherBuilder, whitelisted bool)`
+
+If this fetcher's whitelisted = `true`, it means that testHarness will ignore robots.txt completely. It is recommended to set this to `false` unless you are sure that we are allowed to ignore `robots.txt`
+
+For example: 
 `harness, err := testharness.Register(fetcherName.NewFetcher, false)`
 
 
