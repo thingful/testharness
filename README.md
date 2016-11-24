@@ -31,6 +31,15 @@ Light weight tool for fetcher develpers to run real tests locally without Pomelo
 ## How to use
 The code that runs TestHarness is at `com/harness/main.go`. This code is called by `make harness` command
 
+### Register
+Init by passing the fetcher and whitelisted bool to Register method.
+`Register(builder thingfulx.FetcherBuilder, whitelisted bool)`
+If this fetcher whitelisted = true, it means that testHarness will ignore robots.txt completely.
+
+For example.
+`harness, err := testharness.Register(fetcherName.NewFetcher, false)`
+
+
 There are 3 main features, these functions can be used separately.
 
 ### RunAll

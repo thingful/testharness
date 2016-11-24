@@ -22,9 +22,11 @@ var (
 	EmptyThingsCount int = 0
 	URLsError        []error
 	FetchError       []string
+	WhiteListed      bool = false
 )
 
-func Register(builder thingfulx.FetcherBuilder) (*Harness, error) {
+func Register(builder thingfulx.FetcherBuilder, whitelisted bool) (*Harness, error) {
+	WhiteListed = whitelisted
 	fetcher, err := builder()
 	if err != nil {
 		return nil, err
@@ -370,6 +372,10 @@ func checkURLs(urls []string) (bool, error) {
 			allAllowed = false
 		}
 
+	}
+
+	if WhiteListed {
+		allAllowed = true
 	}
 
 	return allAllowed, nil
