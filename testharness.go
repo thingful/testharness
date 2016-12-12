@@ -54,7 +54,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	client := thingfulx.NewClient("thingful", timeout)
 	delay := time.Duration(10) * time.Second
 
-	URLs, err := h.fetcher.URLS(client, delay)
+	URLs, err := h.fetcher.URLS(ctx, client, delay)
 	if err != nil {
 		// panic(err)
 		fmt.Printf("## ERROR from URLs: %s\n", err.Error()) // we should log this
