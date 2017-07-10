@@ -10,7 +10,7 @@ Light weight tool for fetcher develpers to run real tests locally without Pomelo
 - package: github.com/thingful/testharness
   version: semantic-metadata
 ```
-* pull latest `bitbucket.org/thingful/template` at the moment it's `add-harness` branch
+* pull latest `bitbucket.org/thingful/template` at the moment it's `semantic-metadata` branch
 * copy `cmd` folder from `bitbucket.org/thingful/template` to the fetcher folder that you are testing
 * replace `makefile` and `.gitignore` with the new ones from `bitbucket.org/thingful/template`
 * change the word `template` in the main.go to the package name that you are testing
