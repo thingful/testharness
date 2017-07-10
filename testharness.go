@@ -25,7 +25,7 @@ var (
 	WhiteListed      bool = false
 )
 
-func Register(builder thingfulx.FetcherBuilder, whitelisted bool) (*Harness, error) {
+func Register(builder thingfulx.IndexerBuilder, whitelisted bool) (*Harness, error) {
 	WhiteListed = whitelisted
 	fetcher, err := builder()
 	if err != nil {
@@ -43,10 +43,13 @@ type Harness struct {
 
 func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, totalFetch int) {
 
-	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
-	fmt.Println("Provider:\n")
-	spew.Dump(h.fetcher.Provider())
-	fmt.Println("\n\n")
+	// dont have this method anymore
+	// fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
+	fmt.Println("########### Running Fetcher: ###########")
+
+	// fmt.Println("Provider:\n")
+	// spew.Dump(h.fetcher.Provider())
+	// fmt.Println("\n\n")
 
 	/// ############## URLS ###############
 	fmt.Println("URLS:\n")
@@ -134,7 +137,8 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	}
 
 	// ############### ACCESS ###############
-	fmt.Printf("########### Checking Access for: %s ########### \n", h.fetcher.Provider().UID)
+	// fmt.Printf("########### Checking Access for: %s ########### \n", h.fetcher.Provider().UID)
+	fmt.Println("########### Checking Access for:###########")
 	successAccessCount := 0
 	failureAccessCount := 0
 	foundUniqueUrl := 0 // to store how many have we found
@@ -208,7 +212,7 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 	EmptyThingsCount = 0
 	FetchErrorCount = 0
 	FetchError = FetchError[:0]
-	fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
+	// fmt.Printf("########### Running Fetcher: %s ########### \n", h.fetcher.Provider().UID)
 	fmt.Println("FETCH:\n")
 	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
 	allAllowed, allowErr := checkURLs(urls)
@@ -268,7 +272,8 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 	// the resulting slice of things **MUST** contain a Thing with that same individual DataURL.
 	// It **MAY** also contain other things if that single fetch happens to also retrieve them.
 
-	fmt.Printf("########### Checking Access for: %s ########### \n", h.fetcher.Provider().UID)
+	// fmt.Printf("########### Checking Access for: %s ########### \n", h.fetcher.Provider().UID)
+	fmt.Println("########### Checking Access for: ###########")
 
 	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
 	allAllowed, allowErr := checkURLs(urls)
