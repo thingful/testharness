@@ -3,7 +3,7 @@
 Light weight tool for fetcher develpers to run real tests locally without Pomelo
 
 ### How to implement with **existing** Fetcher
-* update `glide.yaml` file to change thingfulx version to 0.1.8 and add testharness
+* update `glide.yaml` file to change thingfulx version to semantic-metadata and add testharness, also on version: semantic-metadata
 ```
 - package: github.com/thingful/thingfulx
   version: semantic-metadata
