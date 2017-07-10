@@ -14,7 +14,7 @@ Light weight tool for fetcher develpers to run real tests locally without Pomelo
 * replace `makefile` and `.gitignore` with the new ones from `bitbucket.org/thingful/template`
 * change the word `template` in the main.go to the package name that you are testing
     * one in import `"bitbucket.com/thingful/template"`
-    * another one in main function `harness, err := testharness.Register(template.NewFetcher)`
+    * another one in main function `harness, err := testharness.Register(template.NewIndexer)`
 * run `glide up`
 * run by `make harness`
 * if API_KEY is needed do `API_KEY="123456" make harness`
@@ -24,7 +24,7 @@ Light weight tool for fetcher develpers to run real tests locally without Pomelo
 * make sure that new fetcher is based on latest `template`
 * change the `template` in the main.go to the package name that you are testing
     * one in import `"bitbucket.com/thingful/template"`
-    * another one in main function `harness, err := testharness.Register(template.NewFetcher)`
+    * another one in main function `harness, err := testharness.Register(template.NewIndexer)`
 * run `glide up`
 * run by `make harness`
 
@@ -34,12 +34,12 @@ The code that runs TestHarness is at `com/harness/main.go`. This code is called 
 ### Register
 Init by passing the fetcher and whitelisted bool to Register method.
 
-`Register(builder thingfulx.FetcherBuilder, whitelisted bool)`
+`Register(builder thingfulx.IndexerBuilder, whitelisted bool)`
 
 If this fetcher's whitelisted = `true`, it means that testHarness will ignore robots.txt completely. It is recommended to set this to `false` unless you are sure that we are allowed to ignore `robots.txt`
 
-For example: 
-`harness, err := testharness.Register(fetcherName.NewFetcher, false)`
+For example:
+`harness, err := testharness.Register(fetcherName.NewIndexer, false)`
 
 
 There are 3 main features, these functions can be used separately.
