@@ -2,7 +2,7 @@ package: github.com/thingful/testharness
 import:
 - package: github.com/thingful/httpmock
 - package: github.com/thingful/thingfulx
-  version: 0.1.9
+  version: 0.2.0
 - package: github.com/stretchr/testify
 - package: golang.org/x/net/context
 - package: github.com/davecgh/go-spew

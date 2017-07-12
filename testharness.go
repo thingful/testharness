@@ -161,7 +161,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
 		if err != nil {
-			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
+			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
 			FetchErrorCount += 1
 		} else {
@@ -255,7 +255,7 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
 
 		if err != nil {
-			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
+			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
 			FetchErrorCount += 1
 		} else {
@@ -327,7 +327,7 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
 
 		if err != nil {
-			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
+			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
 			FetchErrorCount += 1
 		} else {
