@@ -211,7 +211,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	fmt.Printf("\nTotal things access attemp = %d\n", len(dataURLs))
 	fmt.Printf("\nTotal things access successfully = %d\n", successAccessCount)
 
-	if URLsErrorCount == 0 && FetchErrorCount == 0 && failureAccessCount == 0 {
+	if URLsErrorCount == 0 && URLsCount > 0 && FetchErrorCount == 0 && failureAccessCount == 0 {
 		fmt.Printf("\nEverything seems to be OK\n\n")
 	} else {
 		fmt.Printf("\nThere seems to be problems\n\n")
