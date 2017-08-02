@@ -1,18 +1,22 @@
-hash: 4bf66afab92c7adf0ca348a3463a22bd32c548122344c3f549627429ac4381b4
-updated: 2016-09-21T14:49:58.639217586+01:00
+hash: 9289255b6eb5e81b946acc32ef4fa1787622b1f8d0d067d9de5010e353f26455
+updated: 2017-08-01T15:59:58.620376918+01:00
 imports:
 - name: github.com/davecgh/go-spew
-  version: 6d212800a42e8ab5c146b8ace3490ee17e5225f9
+  version: adab96458c51a58dc1783b3335dcce5461522e75
   subpackages:
   - spew
 - name: github.com/stretchr/testify
-  version: d77da356e56a7428ad25149ca77381849a6a5232
+  version: 05e8a0eda380579888eb53c394909df027f06991
+- name: github.com/temoto/robotstxt
+  version: 9e4646fa705336d5b2fa9dddfafbe0a1a965acd7
 - name: github.com/thingful/httpmock
-  version: 6e2845bb0771126e6b31090e99c32e90d509208c
+  version: ad20707d669ac1ecad9d2028b8f858832937fc82
 - name: github.com/thingful/thingfulx
-  version: e8771d98c99c86c469e783f3dabe6e90b8621362
+  version: cc3c9e6c5dbcd22c25ab9389a070248437b5455d
+  subpackages:
+  - schema
 - name: golang.org/x/net
-  version: f4fe4abe3c785295ddf81c7f1823bcd3bad391b6
+  version: f5079bd7f6f74e23c4d65efa0f4ce14cbd6a3c0f
   subpackages:
   - context
 testImports: []

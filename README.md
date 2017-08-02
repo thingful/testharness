@@ -1,8 +1,8 @@
 # testharness
 
-Light weight tool for fetcher develpers to run real tests locally without Pomelo
+Light weight tool for indexer develpers to run real tests locally without Pomelo
 
-### How to implement with **existing** Fetcher
+### How to implement with **existing** Indexer
 * update `glide.yaml` file to change thingfulx version to semantic-metadata and add testharness, also on version: semantic-metadata
 ```
 - package: github.com/thingful/thingfulx
@@ -11,7 +11,7 @@ Light weight tool for fetcher develpers to run real tests locally without Pomelo
   version: semantic-metadata
 ```
 * pull latest `bitbucket.org/thingful/template` at the moment it's `semantic-metadata` branch
-* copy `cmd` folder from `bitbucket.org/thingful/template` to the fetcher folder that you are testing
+* copy `cmd` folder from `bitbucket.org/thingful/template` to the indexer folder that you are testing
 * replace `makefile` and `.gitignore` with the new ones from `bitbucket.org/thingful/template`
 * change the word `template` in the main.go to the package name that you are testing
     * one in import `"bitbucket.com/thingful/template"`
@@ -21,8 +21,8 @@ Light weight tool for fetcher develpers to run real tests locally without Pomelo
 * if API_KEY is needed do `API_KEY="123456" make harness`
 
 
-### How to implement with **new** Fetcher
-* make sure that new fetcher is based on latest `template`
+### How to implement with **new** Indexer
+* make sure that new indexer is based on latest `template`
 * change the `template` in the main.go to the package name that you are testing
     * one in import `"bitbucket.com/thingful/template"`
     * another one in main function `harness, err := testharness.Register(template.NewIndexer)`
@@ -33,20 +33,20 @@ Light weight tool for fetcher develpers to run real tests locally without Pomelo
 The code that runs TestHarness is at `com/harness/main.go`. This code is called by `make harness` command
 
 ### Register
-Init by passing the fetcher and whitelisted bool to Register method.
+Init by passing the indexer and whitelisted bool to Register method.
 
 `Register(builder thingfulx.IndexerBuilder, whitelisted bool)`
 
-If this fetcher's whitelisted = `true`, it means that testHarness will ignore robots.txt completely. It is recommended to set this to `false` unless you are sure that we are allowed to ignore `robots.txt`
+If this indexer's whitelisted = `true`, it means that testHarness will ignore robots.txt completely. It is recommended to set this to `false` unless you are sure that we are allowed to ignore `robots.txt`
 
 For example:
-`harness, err := testharness.Register(fetcherName.NewIndexer, false)`
+`harness, err := testharness.Register(indexerName.NewIndexer, false)`
 
 
 There are 3 main functions, these functions can be used separately.
 
 ### RunAll
-RunAll runs URL method of this fetcher first
+RunAll runs URL method of this indexer first
 
 Then use the result URLs to fetch
 
@@ -61,7 +61,7 @@ harness.RunAll(context.Background(), fetchAllInterval, urlsToFetch)
 ### RunFetch
 RunFetch `fetch` the specified URLs then `parse` the content
 ```
-urls := []string{ // this is the URL produced by Fetcher's URL method
+urls := []string{ // this is the URL produced by Indexer's URL method
   "http://marlin.casa.ucl.ac.uk/~ollie/bikesapi/load.php?scheme=london",
 }
 fetchInterval := time.Duration(5) * time.Second // interval between each Fetch

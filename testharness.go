@@ -15,16 +15,33 @@ import (
 )
 
 var (
-	URLsErrorCount   int = 0
-	URLsCount        int = 0
-	FetchErrorCount  int = 0
-	ThingsCount      int = 0
-	EmptyThingsCount int = 0
-	URLsError        []error
-	FetchError       []string
-	WhiteListed      bool = false
+	// URLsErrorCount indicates how many errors occured during URLs method
+	URLsErrorCount int
+
+	// URLsCount indicates number of URLs returned by URLs methog
+	URLsCount int
+
+	// FetchErrorCount indicates how many errors occured during Fetch method
+	FetchErrorCount int
+
+	// ThingsCount indicates how many things successfully fetched from Fetch method
+	ThingsCount int
+
+	// EmptyThingsCount indicates how many URLs return without error but also without thing
+	EmptyThingsCount int
+
+	// URLsError stores errors from URLs method
+	URLsError []error
+
+	// FetchError stores errors from Fetch method
+	FetchError []string
+
+	// WhiteListed indicated if this indexer is whitelisted from checking robots.txt
+	WhiteListed bool
 )
 
+// Register function register the indexer to test harness
+// Init by passing the indexer and whitelisted bool to Register method
 func Register(builder thingfulx.IndexerBuilder, whitelisted bool) (*Harness, error) {
 	WhiteListed = whitelisted
 	indexer, err := builder()
@@ -37,14 +54,17 @@ func Register(builder thingfulx.IndexerBuilder, whitelisted bool) (*Harness, err
 	}, nil
 }
 
+// Harness contain instance of Indexer, and ability to run Indexer
 type Harness struct {
 	indexer thingfulx.Indexer
 }
 
+// RunAll runs URL method of this indexer first
+// Then use the result URLs to fetch
+// Then for each URL to fetch, get one dataURL from first thing returned to access
 func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, totalFetch int) {
 
-	// dont have this method anymore
-	fmt.Printf("########### Running Fetcher: %s ########### \n", h.indexer.UID())
+	fmt.Printf("########### Running Indexer: %s ########### \n", h.indexer.UID())
 
 	/// ############## URLS ###############
 	fmt.Println("URLS:\n")
@@ -57,7 +77,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 		// panic(err)
 		fmt.Printf("## ERROR from URLs: %s\n", err.Error()) // we should log this
 		URLsError = append(URLsError, err)
-		URLsErrorCount += 1
+		URLsErrorCount++
 	}
 
 	showSize := min([]int{3, len(URLs)})
@@ -106,7 +126,7 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 				fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
 			}
 			FetchError = append(FetchError, URLs[i]+"\n"+err.Error())
-			FetchErrorCount += 1
+			FetchErrorCount++
 		}
 
 		things, err := h.indexer.Parse(bytes, URLs[i], timeProvider)
@@ -116,11 +136,11 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 				fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
 			}
 			FetchError = append(FetchError, URLs[i]+"\n"+err.Error())
-			FetchErrorCount += 1
+			FetchErrorCount++
 		} else {
 
 			if len(things) == 0 {
-				EmptyThingsCount += 1
+				EmptyThingsCount++
 			} else {
 				ThingsCount += len(things)
 				dataURLs = append(dataURLs, things[0].Endpoint.URL) // save 1 dataUrl from each fetch to test
@@ -146,33 +166,33 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	fmt.Printf("########### Checking Access for: %s ########### \n", h.indexer.UID())
 	successAccessCount := 0
 	failureAccessCount := 0
-	foundUniqueUrl := 0 // to store how many have we found
+	foundUniqueURL := 0 // to store how many have we found
 	for _, u := range dataURLs {
 
-		foundUniqueUrl = 0
+		foundUniqueURL = 0
 
 		fmt.Printf("Accessing:  %s\n", u)
 		bytes, err := h.indexer.Fetch(ctx, u, clientFetch)
 		if err != nil {
 			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
-			FetchErrorCount += 1
+			FetchErrorCount++
 		}
 
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
 		if err != nil {
 			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
-			FetchErrorCount += 1
+			FetchErrorCount++
 		} else {
 
 			if len(things) == 0 {
 				fmt.Printf("ERROR this URL: %s returns nothing\n", u)
-				failureAccessCount += 1
+				failureAccessCount++
 			} else {
 				for i := 0; i < len(things); i++ {
 					if u == things[i].Endpoint.URL { // check if one of "things" contain the same urls that used to access it
-						foundUniqueUrl++
+						foundUniqueURL++
 						fmt.Printf("Found same unique dataURL: %s \n", things[i].Endpoint.URL)
 					}
 				}
@@ -180,15 +200,15 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 		}
 
-		if foundUniqueUrl == 1 { // we only expect to find 1 copy of dataURL
+		if foundUniqueURL == 1 { // we only expect to find 1 copy of dataURL
 			fmt.Printf("SUCCESS found one match: \n")
-			successAccessCount += 1
-		} else if foundUniqueUrl > 1 { // if we found more than one, give warning
-			fmt.Printf("ERROR found %d of the same unique URL: \n", foundUniqueUrl)
-			failureAccessCount += 1
-		} else if foundUniqueUrl == 0 { // if we found nothing, also give warning
+			successAccessCount++
+		} else if foundUniqueURL > 1 { // if we found more than one, give warning
+			fmt.Printf("ERROR found %d of the same unique URL: \n", foundUniqueURL)
+			failureAccessCount++
+		} else if foundUniqueURL == 0 { // if we found nothing, also give warning
 			fmt.Printf("ERROR can't find anything that match: %s \n", u)
-			failureAccessCount += 1
+			failureAccessCount++
 		}
 
 	}
@@ -219,12 +239,13 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 }
 
+// RunFetch `fetch` the specified URLs then `parse` the content
 func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval time.Duration) {
 	ThingsCount = 0
 	EmptyThingsCount = 0
 	FetchErrorCount = 0
 	FetchError = FetchError[:0]
-	fmt.Printf("########### Running Fetcher: %s ########### \n", h.indexer.UID())
+	fmt.Printf("########### Running Indexer: %s ########### \n", h.indexer.UID())
 	fmt.Println("FETCH:\n")
 	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
 	allAllowed, allowErr := checkURLs(urls)
@@ -249,7 +270,7 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 		if err != nil {
 			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
-			FetchErrorCount += 1
+			FetchErrorCount++
 		}
 
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
@@ -257,11 +278,11 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 		if err != nil {
 			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
-			FetchErrorCount += 1
+			FetchErrorCount++
 		} else {
 
 			if len(things) == 0 {
-				EmptyThingsCount += 1
+				EmptyThingsCount++
 			} else {
 				ThingsCount += len(things)
 			}
@@ -288,6 +309,7 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 
 }
 
+//RunAccess fetch(and parse) the dataURLs, then check that ONLY one thing returned from Fetch has the same dataURL
 func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval time.Duration) {
 	// When the testharness uses an individual thing's DataURL
 	// the resulting slice of things **MUST** contain a Thing with that same individual DataURL.
@@ -310,10 +332,10 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 	timeout := time.Duration(60) * time.Second
 	clientFetch := thingfulx.NewClient("thingful", timeout)
 	timeProvider := thingfulx.NewMockTimeProvider(time.Now())
-	foundUniqueUrl := 0 // to store how many have we found
+	foundUniqueURL := 0 // to store how many have we found
 	for _, u := range urls {
 
-		foundUniqueUrl = 0
+		foundUniqueURL = 0
 
 		fmt.Printf("Fetching:  %s\n", u)
 		bytes, err := h.indexer.Fetch(ctx, u, clientFetch)
@@ -321,7 +343,7 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 		if err != nil {
 			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
-			FetchErrorCount += 1
+			FetchErrorCount++
 		}
 
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
@@ -329,7 +351,7 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 		if err != nil {
 			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
 			FetchError = append(FetchError, err.Error())
-			FetchErrorCount += 1
+			FetchErrorCount++
 		} else {
 
 			if len(things) == 0 {
@@ -337,7 +359,7 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 			} else {
 				for i := 0; i < len(things); i++ {
 					if u == things[i].Endpoint.URL { // check if one of "things" contain the same urls that used to access it
-						foundUniqueUrl++
+						foundUniqueURL++
 						fmt.Printf("found same unique URL: %s \n", things[i].Endpoint.URL)
 					}
 				}
@@ -345,11 +367,11 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 
 		}
 
-		if foundUniqueUrl == 1 { // we only expect to find 1 copy of dataURL
+		if foundUniqueURL == 1 { // we only expect to find 1 copy of dataURL
 			fmt.Printf("SUCCESS found one match: \n")
-		} else if foundUniqueUrl > 1 { // if we find more than 1, give warning
-			fmt.Printf("ERROR found %d of the same unique URL: \n", foundUniqueUrl)
-		} else if foundUniqueUrl == 0 { // also if we can't find any, give warning
+		} else if foundUniqueURL > 1 { // if we find more than 1, give warning
+			fmt.Printf("ERROR found %d of the same unique URL: \n", foundUniqueURL)
+		} else if foundUniqueURL == 0 { // also if we can't find any, give warning
 			fmt.Printf("ERROR can't find anything that match: %s \n", u)
 		}
 
