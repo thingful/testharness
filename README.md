@@ -3,12 +3,11 @@
 Light weight tool for indexer develpers to run real tests locally without Pomelo
 
 ### How to implement with **existing** Indexer
-* update `glide.yaml` file to change thingfulx version to semantic-metadata and add testharness, also on version: semantic-metadata
+* update `glide.yaml` file to add testharness abd change thingfulx version to ~0.2.0 
 ```
 - package: github.com/thingful/thingfulx
-  version: semantic-metadata
+  version: ~0.2.0
 - package: github.com/thingful/testharness
-  version: semantic-metadata
 ```
 * pull latest `bitbucket.org/thingful/template` at the moment it's `semantic-metadata` branch
 * copy `cmd` folder from `bitbucket.org/thingful/template` to the indexer folder that you are testing
