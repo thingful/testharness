@@ -15,35 +15,35 @@ import (
 )
 
 var (
-	// URLsErrorCount indicates how many errors occured during URLs method
-	URLsErrorCount int
+	// urlsErrorCount indicates how many errors occured during URLs method
+	urlsErrorCount int
 
-	// URLsCount indicates number of URLs returned by URLs methog
-	URLsCount int
+	// urlsCount indicates number of URLs returned by URLs methog
+	urlsCount int
 
-	// FetchErrorCount indicates how many errors occured during Fetch method
-	FetchErrorCount int
+	// fetchErrorCount indicates how many errors occured during Fetch method
+	fetchErrorCount int
 
-	// ThingsCount indicates how many things successfully fetched from Fetch method
-	ThingsCount int
+	// thingsCount indicates how many things successfully fetched from Fetch method
+	thingsCount int
 
-	// EmptyThingsCount indicates how many URLs return without error but also without thing
-	EmptyThingsCount int
+	// emptyThingsCount indicates how many URLs return without error but also without thing
+	emptyThingsCount int
 
-	// URLsError stores errors from URLs method
-	URLsError []error
+	// urlsError stores errors from URLs method
+	urlsError []error
 
-	// FetchError stores errors from Fetch method
-	FetchError []string
+	// fetchError stores errors from Fetch method
+	fetchError []string
 
-	// WhiteListed indicated if this indexer is whitelisted from checking robots.txt
-	WhiteListed bool
+	// whiteListed indicated if this indexer is whitelisted from checking robots.txt
+	whiteListed bool
 )
 
 // Register function register the indexer to test harness
 // Init by passing the indexer and whitelisted bool to Register method
 func Register(builder thingfulx.IndexerBuilder, whitelisted bool) (*Harness, error) {
-	WhiteListed = whitelisted
+	whiteListed = whitelisted
 	indexer, err := builder()
 	if err != nil {
 		return nil, err
@@ -74,14 +74,13 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 	URLs, err := h.indexer.URLS(ctx, client, delay)
 	if err != nil {
-		// panic(err)
 		fmt.Printf("## ERROR from URLs: %s\n", err.Error()) // we should log this
-		URLsError = append(URLsError, err)
-		URLsErrorCount++
+		urlsError = append(urlsError, err)
+		urlsErrorCount++
 	}
 
 	showSize := min([]int{3, len(URLs)})
-	URLsCount = len(URLs)
+	urlsCount = len(URLs)
 	fmt.Printf("URLs has %d entry, showing first %d:\n", len(URLs), showSize)
 
 	showURLs := URLs[0:showSize]
@@ -125,8 +124,8 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 			if i < showSize {
 				fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
 			}
-			FetchError = append(FetchError, URLs[i]+"\n"+err.Error())
-			FetchErrorCount++
+			fetchError = append(fetchError, URLs[i]+"\n"+err.Error())
+			fetchErrorCount++
 		}
 
 		things, err := h.indexer.Parse(bytes, URLs[i], timeProvider)
@@ -135,14 +134,14 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 			if i < showSize {
 				fmt.Printf("## ERROR from Fetch: %s\n", err.Error()) // we should log this
 			}
-			FetchError = append(FetchError, URLs[i]+"\n"+err.Error())
-			FetchErrorCount++
+			fetchError = append(fetchError, URLs[i]+"\n"+err.Error())
+			fetchErrorCount++
 		} else {
 
 			if len(things) == 0 {
-				EmptyThingsCount++
+				emptyThingsCount++
 			} else {
-				ThingsCount += len(things)
+				thingsCount += len(things)
 				dataURLs = append(dataURLs, things[0].Endpoint.URL) // save 1 dataUrl from each fetch to test
 			}
 
@@ -175,15 +174,15 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 		bytes, err := h.indexer.Fetch(ctx, u, clientFetch)
 		if err != nil {
 			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
-			FetchError = append(FetchError, err.Error())
-			FetchErrorCount++
+			fetchError = append(fetchError, err.Error())
+			fetchErrorCount++
 		}
 
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
 		if err != nil {
 			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
-			FetchError = append(FetchError, err.Error())
-			FetchErrorCount++
+			fetchError = append(fetchError, err.Error())
+			fetchErrorCount++
 		} else {
 
 			if len(things) == 0 {
@@ -214,24 +213,24 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 	}
 
 	fmt.Printf("\n########### SUMMARY ###########\n")
-	fmt.Printf("Total URLs errors = %d\n", URLsErrorCount)
-	for _, u := range URLsError {
+	fmt.Printf("Total URLs errors = %d\n", urlsErrorCount)
+	for _, u := range urlsError {
 		fmt.Println(u)
 	}
-	fmt.Printf("\nTotal URLs = %d\n", URLsCount)
+	fmt.Printf("\nTotal URLs = %d\n", urlsCount)
 
-	fmt.Printf("\nTotal fetch errors = %d\n", FetchErrorCount)
-	for _, u := range FetchError {
+	fmt.Printf("\nTotal fetch errors = %d\n", fetchErrorCount)
+	for _, u := range fetchError {
 		fmt.Println(u)
 		fmt.Println()
 	}
-	fmt.Printf("\nTotal things fetched = %d\n", ThingsCount)
-	fmt.Printf("\nTotal empty things = %d\n", EmptyThingsCount)
+	fmt.Printf("\nTotal things fetched = %d\n", thingsCount)
+	fmt.Printf("\nTotal empty things = %d\n", emptyThingsCount)
 
 	fmt.Printf("\nTotal things access attemp = %d\n", len(dataURLs))
 	fmt.Printf("\nTotal things access successfully = %d\n", successAccessCount)
 
-	if URLsErrorCount == 0 && URLsCount > 0 && FetchErrorCount == 0 && failureAccessCount == 0 {
+	if urlsErrorCount == 0 && urlsCount > 0 && fetchErrorCount == 0 && failureAccessCount == 0 {
 		fmt.Printf("\nEverything seems to be OK\n\n")
 	} else {
 		fmt.Printf("\nThere seems to be problems\n\n")
@@ -241,10 +240,10 @@ func (h *Harness) RunAll(ctx context.Context, fetchInterval time.Duration, total
 
 // RunFetch `fetch` the specified URLs then `parse` the content
 func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval time.Duration) {
-	ThingsCount = 0
-	EmptyThingsCount = 0
-	FetchErrorCount = 0
-	FetchError = FetchError[:0]
+	thingsCount = 0
+	emptyThingsCount = 0
+	fetchErrorCount = 0
+	fetchError = fetchError[:0]
 	fmt.Printf("########### Running Indexer: %s ########### \n", h.indexer.UID())
 	fmt.Println("FETCH:\n")
 	fmt.Printf("CHECKING FOR ROBOTS.TXT FOR ALL URLS\n")
@@ -269,22 +268,22 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 
 		if err != nil {
 			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
-			FetchError = append(FetchError, err.Error())
-			FetchErrorCount++
+			fetchError = append(fetchError, err.Error())
+			fetchErrorCount++
 		}
 
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
 
 		if err != nil {
 			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
-			FetchError = append(FetchError, err.Error())
-			FetchErrorCount++
+			fetchError = append(fetchError, err.Error())
+			fetchErrorCount++
 		} else {
 
 			if len(things) == 0 {
-				EmptyThingsCount++
+				emptyThingsCount++
 			} else {
-				ThingsCount += len(things)
+				thingsCount += len(things)
 			}
 		}
 		spew.Dump(things)
@@ -294,14 +293,14 @@ func (h *Harness) RunFetch(ctx context.Context, urls []string, fetchInterval tim
 
 	fmt.Printf("SUMMARY:")
 
-	fmt.Printf("\nTotal fetch errors = %d\n", FetchErrorCount)
-	for _, u := range FetchError {
+	fmt.Printf("\nTotal fetch errors = %d\n", fetchErrorCount)
+	for _, u := range fetchError {
 		fmt.Println(u)
 		fmt.Println()
 	}
-	fmt.Printf("\nTotal things fetched = %d\n", ThingsCount)
-	fmt.Printf("\nTotal empty things = %d\n", EmptyThingsCount)
-	if URLsErrorCount == 0 && FetchErrorCount == 0 {
+	fmt.Printf("\nTotal things fetched = %d\n", thingsCount)
+	fmt.Printf("\nTotal empty things = %d\n", emptyThingsCount)
+	if urlsErrorCount == 0 && fetchErrorCount == 0 {
 		fmt.Printf("\nEverything seems to be OK\n\n")
 	} else {
 		fmt.Printf("\nThere seems to be problems\n\n")
@@ -342,16 +341,16 @@ func (h *Harness) RunAccess(ctx context.Context, urls []string, fetchInterval ti
 
 		if err != nil {
 			fmt.Printf("## ERROR from Fetch: %s\n", err.Error())
-			FetchError = append(FetchError, err.Error())
-			FetchErrorCount++
+			fetchError = append(fetchError, err.Error())
+			fetchErrorCount++
 		}
 
 		things, err := h.indexer.Parse(bytes, u, timeProvider)
 
 		if err != nil {
 			fmt.Printf("## ERROR from Parse: %s\n", err.Error())
-			FetchError = append(FetchError, err.Error())
-			FetchErrorCount++
+			fetchError = append(fetchError, err.Error())
+			fetchErrorCount++
 		} else {
 
 			if len(things) == 0 {
@@ -400,7 +399,7 @@ func checkURLs(urls []string) (bool, error) {
 		return false, err
 	}
 
-	if WhiteListed {
+	if whiteListed {
 
 		fmt.Println("THIS PROVIDER IS WHITELISTED, IGNORING ROBOTS.TXT CHECK")
 		allAllowed = true
